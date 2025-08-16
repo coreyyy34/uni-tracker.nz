@@ -10,8 +10,18 @@ runs:
           working-directory: backend
           run: |
               chmod +x ./gradlew
-              ./gradlew ${{ inputs.task }} --no-daemon --parallel
+              CMD="./gradlew ${{ inputs.task }} --no-daemon"
+              if [ "${{ inputs.parallel }}" = "true" ]; then
+                CMD="$CMD --parallel"
+              fi
+              echo "Running: $CMD"
+              $CMD
+
 inputs:
     task:
         required: true
-        description: "Gradle task to run "
+        description: "Gradle task to run"
+    parallel:
+        required: false
+        default: "true"
+        description: "Whether to run Gradle in parallel mode (true/false)"
