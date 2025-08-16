@@ -1,5 +1,6 @@
 package nz.unitracker.auth.infrastructure.user.persistence
 
+import nz.unitracker.auth.domain.auth.AuthProvider
 import nz.unitracker.auth.infrastructure.BaseTable
 import org.jetbrains.exposed.v1.core.ReferenceOption
 
@@ -16,9 +17,9 @@ object UserCredentialTable : BaseTable("auth_user_credential") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
 
     /**
-     * The name of the authentication provider.
+     * The authentication provider associated with the user.
      */
-    val provider = varchar("provider", 50)
+    val provider = enumerationByName("provider", 20, AuthProvider::class)
 
     /**
      * The hashed password, only set when using the "password" provider.
