@@ -10,6 +10,9 @@ plugins {
     java
 }
 
+val exposedVersion = "1.0.0-beta-5"
+val jacksonVersion = "2.19.2"
+
 subprojects {
     group = "nz.unitracker"
     repositories { mavenCentral() }
@@ -69,7 +72,16 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
         "implementation"("org.springframework.boot:spring-boot-starter")
         "implementation"("org.springframework.boot:spring-boot-starter-web")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
-        "implementation"("org.jetbrains.kotlin:kotlin-reflect")
+
+        // database
+        implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
+        implementation("org.jetbrains.exposed:spring-transaction:$exposedVersion")
+        implementation("com.h2database:h2")
+
+        // jackson
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}")
+        implementation("com.fasterxml.jackson.module:jackson-module-afterburner:${jacksonVersion}")
+
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
     }
