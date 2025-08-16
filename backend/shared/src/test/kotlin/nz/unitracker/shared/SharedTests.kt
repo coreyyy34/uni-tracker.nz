@@ -1,9 +1,9 @@
-package nz.unitracker.auth
+package nz.unitracker.shared
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
-class AuthApplicationTests {
+class SharedTests {
 
     @Test
     fun test() {

@@ -1,0 +1,27 @@
+name: "Run Gradle Task"
+description: "Sets up JDK and runs a Gradle task"
+runs:
+    using: "composite"
+    steps:
+        - uses: ./.github/actions/setup-gradle
+
+        - name: Run Gradle Task
+          shell: bash
+          working-directory: backend
+          run: |
+              chmod +x ./gradlew
+              CMD="./gradlew ${{ inputs.task }} --no-daemon"
+              if [ "${{ inputs.parallel }}" = "true" ]; then
+                CMD="$CMD --parallel"
+              fi
+              echo "Running: $CMD"
+              $CMD
+
+inputs:
+    task:
+        required: true
+        description: "Gradle task to run"
+    parallel:
+        required: false
+        default: "true"
+        description: "Whether to run Gradle in parallel mode (true/false)"

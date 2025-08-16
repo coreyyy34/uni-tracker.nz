@@ -1,12 +1,13 @@
 package nz.unitracker.api
 
 import org.junit.jupiter.api.Test
-import kotlin.test.assertTrue
+import org.springframework.boot.test.context.SpringBootTest
 
+@SpringBootTest
 class ApiApplicationTests {
 
     @Test
-    fun test() {
-        assertTrue { true }
+    fun contextLoads() {
     }
+
 }

@@ -6,6 +6,8 @@ plugins {
     kotlin("plugin.spring") version "2.2.0" apply false
     id("org.springframework.boot") version "3.5.4" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
+    id("jacoco") apply true
+    java
 }
 
 subprojects {
@@ -13,6 +15,8 @@ subprojects {
     repositories { mavenCentral() }
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "jacoco")
+    apply(plugin = "java")
 
     configure<JavaPluginExtension> {
         toolchain { languageVersion = JavaLanguageVersion.of(24) }
@@ -31,32 +35,99 @@ subprojects {
         "testImplementation"("org.jetbrains.kotlin:kotlin-test-junit5")
     }
 
-    // common tests configuration
-    tasks.withType<Test> {
+
+    // common test configuration
+    tasks.withType<Test>().configureEach {
         useJUnitPlatform()
         testLogging {
             events("passed", "skipped", "failed")
         }
     }
+
+    tasks.named<Test>("test") {
+        finalizedBy(tasks.named("jacocoTestReport"))
+    }
+
+    tasks.withType<JacocoReport>().configureEach {
+        dependsOn(tasks.named<Test>("test"))
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+            csv.required.set(false)
+            html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco"))
+        }
+    }
 }
 
-// spring boot specific configuration - allows additional subprojects in the future that aren't using spring boot
+// spring Boot specific configuration
 configure(subprojects.filter { it.name in listOf("api", "auth") }) {
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
 
     dependencies {
-        // spring boot starters
         "implementation"("org.springframework.boot:spring-boot-starter")
         "implementation"("org.springframework.boot:spring-boot-starter-web")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
-
-        // kotlin
         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
-
-        // testing
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+    }
+
+    sourceSets {
+        val main by getting
+        val test by getting
+
+        val testIntegration by creating {
+            java.srcDir("src/testIntegration/kotlin")
+            resources.srcDir("src/testIntegration/resources")
+
+            compileClasspath += main.output + test.output
+            runtimeClasspath += output + compileClasspath
+        }
+    }
+
+    configurations {
+        named("testIntegrationImplementation") {
+            extendsFrom(configurations["implementation"], configurations["testImplementation"])
+        }
+        named("testIntegrationRuntimeOnly") {
+            extendsFrom(configurations["runtimeOnly"], configurations["testRuntimeOnly"])
+        }
+    }
+
+    tasks.register<Test>("testIntegration") {
+        description = "Runs integration tests."
+        group = "verification"
+        testClassesDirs = sourceSets["testIntegration"].output.classesDirs
+        classpath = sourceSets["testIntegration"].runtimeClasspath
+
+        useJUnitPlatform {}
+    }
+
+    tasks.register<JacocoReport>("jacocoTestIntegrationReport") {
+        dependsOn(tasks.named("testIntegration"))
+        group = "verification"
+        description = "Generates Jacoco coverage report for integration tests"
+
+        executionData.setFrom(
+            fileTree(layout.buildDirectory.dir("jacoco")) {
+                include("testIntegration.exec")
+            }
+        )
+
+        sourceDirectories.setFrom(sourceSets["main"].allSource.srcDirs)
+        classDirectories.setFrom(sourceSets["main"].output)
+
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+            html.outputLocation.set(layout.buildDirectory.dir("reports/jacocoIntegration"))
+            csv.required.set(false)
+        }
+    }
+
+    tasks.named("check") {
+        dependsOn("testIntegration", "jacocoTestIntegrationReport")
     }
 }
