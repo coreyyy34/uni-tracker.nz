@@ -1,10 +1,8 @@
 package nz.unitracker.auth
 
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
 import kotlin.test.assertTrue
 
-@SpringBootTest
 class AuthApplicationTests {
 
     @Test
