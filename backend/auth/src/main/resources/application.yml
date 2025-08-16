@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: auth
+  main:
+    banner-mode: off
+
+server:
+  port: 9000
+  error:
+    whitelabel:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
