@@ -1,105 +1,111 @@
 name: CI
 
 on:
-  push:
-    branches: [ "**" ]
-  pull_request:
-    branches: [ "**" ]
+    push:
+        branches: ["**"]
+    pull_request:
+        branches: ["**"]
+
+permissions:
+    checks: write
+    pull-requests: write
 
 jobs:
-  shared-tests:
-    name: "Test Shared Module"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    setup:
+        name: Setup
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: ./.github/actions/setup-gradle
 
-      - name: Set up JDK 24
-        uses: actions/setup-java@v4
-        with:
-          java-version: '24'
-          distribution: 'temurin'
-          cache: gradle
-          cache-dependency-path: backend/**/*.gradle*
+            - name: Warm Gradle Cache
+              working-directory: backend
+              run: |
+                  chmod +x ./gradlew
+                  ./gradlew help --no-daemon
 
-      - name: Test shared module
-        working-directory: ./backend
-        run: |
-          chmod +x ./gradlew
-          ./gradlew :shared:test --no-daemon --parallel
+    unit-tests:
+        name: "${{ matrix.module }} - Unit Tests"
+        runs-on: ubuntu-latest
+        needs: setup
+        strategy:
+            fail-fast: false
+            matrix:
+                module: [shared, auth, api]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: ./.github/actions/run-gradle-task
+              with:
+                  task: ":${{ matrix.module }}:test"
 
-  api-tests:
-    name: "Test API Module"
-    runs-on: ubuntu-latest
-    needs: shared-tests # ensure shared-tests completes first
-    steps:
-      - uses: actions/checkout@v4
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.module }}-unit-tests
+                  path: backend/${{ matrix.module }}/build/test-results/test/**/*.xml
+                  retention-days: 1
 
-      - name: Set up JDK 24
-        uses: actions/setup-java@v4
-        with:
-          java-version: '24'
-          distribution: 'temurin'
-          cache: gradle
-          cache-dependency-path: backend/**/*.gradle*
+    integration-tests:
+        name: "${{ matrix.module }} - Integration Tests"
+        runs-on: ubuntu-latest
+        needs: [setup]
+        strategy:
+            fail-fast: false
+            matrix:
+                module: [auth, api]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: ./.github/actions/run-gradle-task
+              with:
+                  task: ":${{ matrix.module }}:testIntegration"
 
-      - name: Test API module
-        working-directory: ./backend
-        run: |
-          chmod +x ./gradlew
-          ./gradlew :api:test --no-daemon --parallel
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.module }}-integration-tests
+                  path: backend/${{ matrix.module }}/build/test-results/testIntegration/**/*.xml
+                  retention-days: 1
 
-  auth-tests:
-    name: "Test Auth Module"
-    runs-on: ubuntu-latest
-    needs: shared-tests # ensure shared-tests completes first
-    steps:
-      - uses: actions/checkout@v4
+    report-tests:
+        name: Combined Tests
+        runs-on: ubuntu-latest
+        needs: [unit-tests, integration-tests]
+        if: always()
+        steps:
+            - name: Download all test results
+              uses: actions/download-artifact@v4
+              with:
+                  path: test-results
 
-      - name: Set up JDK 24
-        uses: actions/setup-java@v4
-        with:
-          java-version: '24'
-          distribution: 'temurin'
-          cache: gradle
-          cache-dependency-path: backend/**/*.gradle*
+            - name: Publish Combined Test Results
+              if: always()
+              uses: EnricoMi/publish-unit-test-result-action@v2
+              with:
+                  files: test-results/**/*.xml
+                  check_name: "All Test Results"
 
-      - name: Test Auth module
-        working-directory: ./backend
-        run: |
-          chmod +x ./gradlew
-          ./gradlew :auth:test --no-daemon --parallel
+    build:
+        name: "Build and Upload JARs"
+        runs-on: ubuntu-latest
+        needs: ["unit-tests", "integration-tests"]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: ./.github/actions/run-gradle-task
+              with:
+                  task: ":api:bootJar :auth:bootJar"
 
-  build:
-    name: "Build and Upload API & Auth JARs"
-    runs-on: ubuntu-latest
-    needs:
-      - api-tests
-      - auth-tests
-    steps:
-      - uses: actions/checkout@v4
+            - name: Upload API JAR
+              uses: actions/upload-artifact@v4
+              with:
+                  name: api-jar
+                  path: backend/api/build/libs/*.jar
+                  retention-days: 30
 
-      - name: Set up JDK 24
-        uses: actions/setup-java@v4
-        with:
-          java-version: '24'
-          distribution: 'temurin'
-          cache: gradle
-          cache-dependency-path: backend/**/*.gradle*
-
-      - name: Build API and Auth JARs
-        working-directory: ./backend
-        run: |
-          chmod +x ./gradlew
-          ./gradlew :api:bootJar :auth:bootJar --no-daemon --parallel
-
-      - name: Upload API JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-jar
-          path: backend/api/build/libs/*.jar
-
-      - name: Upload Auth JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: auth-jar
-          path: backend/auth/build/libs/*.jar
+            - name: Upload Auth JAR
+              uses: actions/upload-artifact@v4
+              with:
+                  name: auth-jar
+                  path: backend/auth/build/libs/*.jar
+                  retention-days: 30

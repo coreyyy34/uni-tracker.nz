@@ -1,0 +1,17 @@
+name: "Run Gradle Task"
+description: "Sets up JDK and runs a Gradle task"
+runs:
+    using: "composite"
+    steps:
+        - uses: ./.github/actions/setup-gradle
+
+        - name: Run Gradle Task
+          shell: bash
+          working-directory: backend
+          run: |
+              chmod +x ./gradlew
+              ./gradlew ${{ inputs.task }} --no-daemon --parallel
+inputs:
+    task:
+        required: true
+        description: "Gradle task to run "
