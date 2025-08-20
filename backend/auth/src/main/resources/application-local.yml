@@ -14,3 +14,30 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: openid,profile,email
+            redirect-uri: "${app.base-url}/login/oauth2/code/google"
+            authorization-grant-type: authorization_code
+          microsoft:
+            client-id: ${MICROSOFT_CLIENT_ID}
+            client-secret: ${MICROSOFT_CLIENT_SECRET}
+            scope: openid,profile,email
+            redirect-uri: "${app.base-url}/login/oauth2/code/microsoft"
+            authorization-grant-type: authorization_code
+        provider:
+          microsoft:
+            authorization-uri: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+            token-uri: https://login.microsoftonline.com/common/oauth2/v2.0/token
+            user-info-uri: https://graph.microsoft.com/oidc/userinfo
+            jwk-set-uri: https://login.microsoftonline.com/common/discovery/v2.0/keys
+            user-name-attribute: sub
+
+app:
+  base-url: "http://localhost:${server.port}${server.servlet.context-path}"
