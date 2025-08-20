@@ -10,7 +10,9 @@ import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(
+    private val authenticationSuccessHandler: OAuth2AuthenticationSuccessHandler
+) {
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -28,7 +30,7 @@ class SecurityConfig {
             }
             .oauth2Login { oauth2 ->
                 oauth2
-                    .defaultSuccessUrl("/success", true)
+                    .successHandler(authenticationSuccessHandler)
             }
             .oauth2Client(withDefaults())
             .csrf { csrf ->

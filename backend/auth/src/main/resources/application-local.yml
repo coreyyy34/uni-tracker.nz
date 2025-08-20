@@ -23,13 +23,13 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid,profile,email
-            redirect-uri: "${app.base-url}/login/oauth2/code/google"
+            redirect-uri: "${app.auth.base-url}/login/oauth2/code/google"
             authorization-grant-type: authorization_code
           microsoft:
             client-id: ${MICROSOFT_CLIENT_ID}
             client-secret: ${MICROSOFT_CLIENT_SECRET}
             scope: openid,profile,email
-            redirect-uri: "${app.base-url}/login/oauth2/code/microsoft"
+            redirect-uri: "${app.auth.base-url}/login/oauth2/code/microsoft"
             authorization-grant-type: authorization_code
         provider:
           microsoft:
@@ -40,4 +40,7 @@ spring:
             user-name-attribute: sub
 
 app:
-  base-url: "http://localhost:${server.port}${server.servlet.context-path}"
+  auth:
+    base-url: "http://localhost:${server.port}${server.servlet.context-path}"
+  client:
+    redirect-url: "https://localhost:8080"
