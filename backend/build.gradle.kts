@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     kotlin("jvm") version "2.2.0" apply false
@@ -8,6 +10,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7" apply false
     id("jacoco") apply true
     java
+
+    // lint
+    id("org.jlleitschuh.gradle.ktlint") version "13.0.0" apply false
 }
 
 subprojects {
@@ -17,6 +22,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "jacoco")
     apply(plugin = "java")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     configure<JavaPluginExtension> {
         toolchain { languageVersion = JavaLanguageVersion.of(24) }
@@ -35,6 +41,20 @@ subprojects {
         "testImplementation"("org.jetbrains.kotlin:kotlin-test-junit5")
     }
 
+    configure<KtlintExtension> {
+        version.set("1.7.1")
+        android.set(false)
+        ignoreFailures.set(false) // fail build on violations
+        outputToConsole.set(true)
+
+        reporters {
+            reporter(ReporterType.HTML)
+        }
+
+        filter {
+            include("**/kotlin/**")
+        }
+    }
 
     // common test configuration
     tasks.withType<Test>().configureEach {
