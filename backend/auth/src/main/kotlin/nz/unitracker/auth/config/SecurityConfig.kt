@@ -11,28 +11,25 @@ import org.springframework.security.web.SecurityFilterChain
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val authenticationSuccessHandler: OAuth2AuthenticationSuccessHandler
+    private val authenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
 ) {
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .anyRequest().permitAll()
-            }
-            .formLogin { form ->
+                    .anyRequest()
+                    .permitAll()
+            }.formLogin { form ->
                 form
                     .loginPage("/login")
                     .permitAll()
                     .defaultSuccessUrl("/success", true)
-            }
-            .oauth2Login { oauth2 ->
+            }.oauth2Login { oauth2 ->
                 oauth2
                     .successHandler(authenticationSuccessHandler)
-            }
-            .oauth2Client(withDefaults())
+            }.oauth2Client(withDefaults())
             .csrf { csrf ->
                 csrf.ignoringRequestMatchers("/h2-console/**")
             }

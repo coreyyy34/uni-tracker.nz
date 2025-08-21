@@ -10,8 +10,9 @@ import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
  *
  * @param name The name of the table in the database.
  */
-abstract class BaseTable(name: String) : Table(name) {
-
+abstract class BaseTable(
+    name: String,
+) : Table(name) {
     /**
      * The unique row identifier stored as a CUID (30-char string).
      * */
@@ -21,15 +22,17 @@ abstract class BaseTable(name: String) : Table(name) {
      * The timestamp with time zone indicating when the row was created.
      * Defaults to the current time when a new row is inserted.
      */
-    val createdAt = timestampWithTimeZone("created_at")
-        .defaultExpression(CurrentTimestampWithTimeZone)
+    val createdAt =
+        timestampWithTimeZone("created_at")
+            .defaultExpression(CurrentTimestampWithTimeZone)
 
     /**
      * The timestamp with time zone indicating when the row was last updated.
      * Defaults to the current time when a new row is inserted.
      */
-    val updatedAt = timestampWithTimeZone("updated_at")
-        .defaultExpression(CurrentTimestampWithTimeZone)
+    val updatedAt =
+        timestampWithTimeZone("updated_at")
+            .defaultExpression(CurrentTimestampWithTimeZone)
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -10,7 +10,6 @@ import org.jetbrains.exposed.v1.core.ReferenceOption
  * Supports both password-based authentication and external OAuth providers.
  */
 object UserCredentialTable : BaseTable("auth_user_credential") {
-
     /**
      * A reference to the owning user.
      */

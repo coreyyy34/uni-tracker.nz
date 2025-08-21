@@ -4,7 +4,6 @@ package nz.unitracker.auth.domain.auth
  * Enum representing the supported authentication providers.
  */
 enum class AuthProvider {
-
     /** Local email/password based login. */
     PASSWORD,
 
@@ -12,5 +11,5 @@ enum class AuthProvider {
     GOOGLE,
 
     /** Authentication via Microsoft OAuth (Azure AD or Microsoft Accounts). */
-    MICROSOFT
+    MICROSOFT,
 }

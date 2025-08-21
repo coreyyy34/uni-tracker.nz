@@ -9,7 +9,6 @@ import nz.unitracker.auth.infrastructure.BaseTable
  * Authentication credentials are stored separately in [UserCredentialTable].
  */
 object UserTable : BaseTable("auth_user") {
-
     /**
      * The email address of the user.
      */

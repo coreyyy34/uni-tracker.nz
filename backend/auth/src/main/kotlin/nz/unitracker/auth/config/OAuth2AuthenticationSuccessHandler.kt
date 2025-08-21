@@ -10,20 +10,18 @@ import org.springframework.stereotype.Component
 
 @Component
 class OAuth2AuthenticationSuccessHandler(
-    private val appConfig: AppConfig
+    private val appConfig: AppConfig,
 ) : AuthenticationSuccessHandler {
-
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authentication: Authentication
+        authentication: Authentication,
     ) {
         val oauthUser = authentication.principal as OAuth2User
         logger.debug("OAuth2 authentication succeeded for user: {}", oauthUser.attributes["email"] ?: "unknown email")
 
         response.sendRedirect(appConfig.client.redirectUrl)
     }
-
 }

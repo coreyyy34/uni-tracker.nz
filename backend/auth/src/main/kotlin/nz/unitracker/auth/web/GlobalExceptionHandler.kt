@@ -19,7 +19,6 @@ import org.springframework.web.util.HtmlUtils
  */
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     /**
@@ -32,18 +31,19 @@ class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFound(
         exception: NoResourceFoundException,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiEnvelope> {
         val status = HttpStatus.NOT_FOUND
         val safePath = HtmlUtils.htmlEscape(request.requestURI)
 
         logger.debug("No resource found at path: {}", safePath, exception)
 
-        val apiResponse = ApiError.now(
-            code = status.name,
-            status = status.value(),
-            path = safePath
-        )
+        val apiResponse =
+            ApiError.now(
+                code = status.name,
+                status = status.value(),
+                path = safePath,
+            )
         return ResponseEntity.status(status).body(apiResponse)
     }
 
@@ -57,18 +57,19 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleGeneric(
         exception: Exception,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<ApiEnvelope> {
         val status = HttpStatus.INTERNAL_SERVER_ERROR
         val safePath = HtmlUtils.htmlEscape(request.requestURI)
 
         logger.debug("Unexpected exception encountered at path: {}", safePath, exception)
 
-        val apiResponse = ApiError.now(
-            code = status.name,
-            status = status.value(),
-            path = safePath
-        )
+        val apiResponse =
+            ApiError.now(
+                code = status.name,
+                status = status.value(),
+                path = safePath,
+            )
         return ResponseEntity.status(status).body(apiResponse)
     }
 }
