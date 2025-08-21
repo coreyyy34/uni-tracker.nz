@@ -18,9 +18,7 @@ data class ApiError(
     val message: String? = null,
     val error: String? = null,
 ) : ApiEnvelope {
-
     companion object {
-
         /**
          * Creates a new [ApiError] instance with the [timestamp] automatically set to the current instant.
          *
@@ -43,7 +41,7 @@ data class ApiError(
             code = code,
             path = path,
             message = message,
-            error = error
+            error = error,
         )
     }
 }
