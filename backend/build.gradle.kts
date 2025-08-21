@@ -100,8 +100,8 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
         implementation("com.h2database:h2")
 
         // jackson
-        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}")
-        implementation("com.fasterxml.jackson.module:jackson-module-afterburner:${jacksonVersion}")
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+        implementation("com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
@@ -109,13 +109,13 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
 
     sourceSets {
         val main by getting
-        val test by getting
+//        val test by getting
 
         val testIntegration by creating {
-            java.srcDir("src/testIntegration/kotlin")
-            resources.srcDir("src/testIntegration/resources")
+//            java.srcDir("src/testIntegration/kotlin")
+//            resources.srcDir("src/testIntegration/resources")
 
-            compileClasspath += main.output + test.output
+            compileClasspath += main.output
             runtimeClasspath += output + compileClasspath
         }
     }
@@ -146,7 +146,7 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
         executionData.setFrom(
             fileTree(layout.buildDirectory.dir("jacoco")) {
                 include("testIntegration.exec")
-            }
+            },
         )
 
         sourceDirectories.setFrom(sourceSets["main"].allSource.srcDirs)

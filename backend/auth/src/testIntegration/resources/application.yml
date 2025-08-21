@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: auth
+  main:
+    banner-mode: off
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope: openid,profile,email
+            redirect-uri: "${app.auth.base-url}/login/oauth2/code/google"
+            authorization-grant-type: authorization_code
+          microsoft:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope: openid,profile,email
+            redirect-uri: "${app.auth.base-url}/login/oauth2/code/microsoft"
+            authorization-grant-type: authorization_code
+        provider:
+          microsoft:
+            authorization-uri: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+            token-uri: https://login.microsoftonline.com/common/oauth2/v2.0/token
+            user-info-uri: https://graph.microsoft.com/oidc/userinfo
+            jwk-set-uri: https://login.microsoftonline.com/common/discovery/v2.0/keys
+            user-name-attribute: sub
+
+server:
+  port: 9000
+  servlet:
+    context-path: ""
+  error:
+    whitelabel:
+      enabled: false
+
+app:
+  auth:
+    base-url: "http://localhost:${server.port}${server.servlet.context-path}"
+  client:
+    redirect-url: "https://localhost:8080"
