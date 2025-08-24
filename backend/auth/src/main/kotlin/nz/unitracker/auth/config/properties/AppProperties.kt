@@ -1,11 +1,11 @@
-package nz.unitracker.auth.config
+package nz.unitracker.auth.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "app")
-class AppConfig {
+class AppProperties {
     lateinit var auth: AuthProperties
     lateinit var client: ClientProperties
 
