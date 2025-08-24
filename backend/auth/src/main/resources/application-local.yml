@@ -43,6 +43,9 @@ app:
   auth:
     base-url: "http://localhost:${server.port}${server.servlet.context-path}"
   client:
-    redirect-url: "https://localhost:8080"
+    redirect-url: "http://localhost:8080"
 jwt:
-  secret: ${JWT_SECRET}
+  private_key: ${JWT_PRIVATE_KEY}
+  public_key: ${JWT_PUBLIC_KEY}
+  access_lifetime: 15m
+  refresh_lifetime: 7d

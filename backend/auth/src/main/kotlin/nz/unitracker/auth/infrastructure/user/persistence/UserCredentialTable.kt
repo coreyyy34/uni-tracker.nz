@@ -1,6 +1,6 @@
 package nz.unitracker.auth.infrastructure.user.persistence
 
-import nz.unitracker.auth.domain.auth.AuthProvider
+import nz.unitracker.auth.domain.auth.model.AuthProvider
 import nz.unitracker.auth.infrastructure.BaseTable
 import org.jetbrains.exposed.v1.core.ReferenceOption
 

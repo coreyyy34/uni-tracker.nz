@@ -1,4 +1,4 @@
-package nz.unitracker.auth.domain.auth
+package nz.unitracker.auth.domain.auth.model
 
 /**
  * Enum representing the supported authentication providers.
