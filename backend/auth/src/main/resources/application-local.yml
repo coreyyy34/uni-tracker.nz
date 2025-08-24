@@ -44,3 +44,5 @@ app:
     base-url: "http://localhost:${server.port}${server.servlet.context-path}"
   client:
     redirect-url: "https://localhost:8080"
+jwt:
+  secret: ${JWT_SECRET}
