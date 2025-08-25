@@ -1,9 +1,9 @@
 package nz.unitracker.auth.web
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import nz.unitracker.nz.unitracker.shared.dto.ApiEnvelope
 import nz.unitracker.nz.unitracker.shared.dto.ApiError
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -19,7 +19,7 @@ import org.springframework.web.util.HtmlUtils
  */
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+    private val logger = KotlinLogging.logger { }
 
     /**
      * Handles requests to resources that do not exist.
@@ -36,7 +36,7 @@ class GlobalExceptionHandler {
         val status = HttpStatus.NOT_FOUND
         val safePath = HtmlUtils.htmlEscape(request.requestURI)
 
-        logger.debug("No resource found at path: {}", safePath, exception)
+        logger.debug(exception) { "No resource found at path: $safePath" }
 
         val apiResponse =
             ApiError.now(
@@ -62,7 +62,7 @@ class GlobalExceptionHandler {
         val status = HttpStatus.INTERNAL_SERVER_ERROR
         val safePath = HtmlUtils.htmlEscape(request.requestURI)
 
-        logger.debug("Unexpected exception encountered at path: {}", safePath, exception)
+        logger.debug(exception) { "Unexpected exception encountered at path: $safePath" }
 
         val apiResponse =
             ApiError.now(
