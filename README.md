@@ -1,4 +1,11 @@
-[![main](https://github.com/coreyyy34/uni-tracker.nz/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/coreyyy34/uni-tracker.nz/actions/workflows/ci.yml)
+<p>
+  <a href="https://github.com/coreyyy34/uni-tracker.nz/actions/workflows/ci.yml?query=branch%3Amain">
+    <img src="https://img.shields.io/github/actions/workflow/status/coreyyy34/uni-tracker.nz/ci.yml?branch=main&label=CI%20%7C%20main&logo=github&style=flat-square" alt="CI - main">
+  </a>
+  <a href="https://github.com/coreyyy34/uni-tracker.nz/actions/workflows/ci.yml?query=branch%3Adev">
+    <img src="https://img.shields.io/github/actions/workflow/status/coreyyy34/uni-tracker.nz/ci.yml?branch=dev&label=CI%20%7C%20dev&logo=github&style=flat-square" alt="CI - dev">
+  </a>
+</p>
 
 ![test](frontend/public/logo-long.svg)
 
