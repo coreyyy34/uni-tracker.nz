@@ -40,7 +40,7 @@ spring:
 
 logging:
   level:
-    nz.unitracker: DEBUG
+    nz.unitracker.auth: DEBUG
     Exposed: DEBUG
 
 

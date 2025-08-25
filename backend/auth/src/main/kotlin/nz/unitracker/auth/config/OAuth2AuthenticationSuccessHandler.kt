@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import nz.unitracker.auth.config.properties.AppProperties
+import nz.unitracker.auth.domain.auth.service.AuthService
 import nz.unitracker.auth.domain.user.service.UserOAuthInfoExtractorService
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class OAuth2AuthenticationSuccessHandler(
     private val appProperties: AppProperties,
+    private val authService: AuthService,
     private val userOauthInfoExtractorService: UserOAuthInfoExtractorService,
 ) : AuthenticationSuccessHandler {
     private val logger = KotlinLogging.logger { }
@@ -42,6 +44,10 @@ class OAuth2AuthenticationSuccessHandler(
         try {
             val userInfo = userOauthInfoExtractorService.extractUserInfo(oauthUser, providerId)
             logger.debug { "Extracted UserInfo: $userInfo" }
+
+            val tokens = authService.handleOAuthLogin(userInfo)
+            tokens.forEach { token -> response.addCookie(token.cookie) }
+
             response.sendRedirect(appProperties.client.redirectUrl)
         } catch (e: Exception) {
             logger.error(e) { "Failed to process OAuth2 user for provider $providerId" }
