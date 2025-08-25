@@ -41,6 +41,7 @@ subprojects {
     // common dependencies for all subprojects
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
+        "implementation"("io.github.oshai:kotlin-logging-jvm:7.0.13")
         "testImplementation"("org.jetbrains.kotlin:kotlin-test-junit5")
     }
 
@@ -109,12 +110,8 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
 
     sourceSets {
         val main by getting
-//        val test by getting
 
         val testIntegration by creating {
-//            java.srcDir("src/testIntegration/kotlin")
-//            resources.srcDir("src/testIntegration/resources")
-
             compileClasspath += main.output
             runtimeClasspath += output + compileClasspath
         }
