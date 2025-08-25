@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.Instant
 
+/**
+ * Service class responsible for generating, validating and managing JSON Web Tokens for authentication.
+ */
 @Service
 class JwtService(
     private val jwtEncoder: JwtEncoder,
@@ -21,23 +24,60 @@ class JwtService(
     private val jwtProperties: JwtProperties,
 ) {
     companion object {
+        /**
+         * Claim name used to distinguish between token types.
+         */
         const val TOKEN_TYPE_CLAIM_NAME = "typ"
     }
 
+    /**
+     * Generates an access token and its associated cookie.
+     *
+     * @return [AuthToken] containing the JWT string and its cookie.
+     */
     fun generateAccessToken(): AuthToken = generateToken(JwtTokenType.ACCESS, jwtProperties.accessLifetime)
 
+    /**
+     * Generates a refresh token and its associated cookie.
+     *
+     * @return [AuthToken] containing the JWT string and its cookie.
+     */
     fun generateRefreshToken(): AuthToken = generateToken(JwtTokenType.REFRESH, jwtProperties.refreshLifetime)
 
+    /**
+     * Validates an access token.
+     *
+     * @param token The raw JWT string to validate.
+     * @return The decoded [Jwt] if valid, otherwise `null`.
+     */
     fun validateAccessToken(token: String): Jwt? = validateToken(token, JwtTokenType.ACCESS)
 
+    /**
+     * Validates a refresh token.
+     *
+     * @param token The raw JWT string to validate.
+     * @return The decoded [Jwt] if valid, otherwise `null`.
+     */
     fun validateRefreshToken(token: String): Jwt? = validateToken(token, JwtTokenType.REFRESH)
 
+    /**
+     * Creates cookies that instruct the client to delete existing access and refresh token cookies.
+     *
+     * @return List of deletion cookies.
+     */
     fun createDeletionCookies(): List<Cookie> =
         listOf(
             createDeletionCookie(JwtTokenType.ACCESS.cookieName),
             createDeletionCookie(JwtTokenType.REFRESH.cookieName),
         )
 
+    /**
+     * Generates a JWT with a given type and lifetime.
+     *
+     * @param type The token type ([JwtTokenType.ACCESS] or [JwtTokenType.REFRESH]).
+     * @param lifetime The duration before the token expires.
+     * @return [AuthToken] containing the JWT string and its cookie.
+     */
     private fun generateToken(
         type: JwtTokenType,
         lifetime: Duration,
@@ -65,6 +105,13 @@ class JwtService(
         return AuthToken(token, cookie)
     }
 
+    /**
+     * Validates a JWT against its expected type.
+     *
+     * @param token The raw JWT string.
+     * @param type The expected token type.
+     * @return The decoded [Jwt] if valid and type matches, otherwise `null`.
+     */
     private fun validateToken(
         token: String,
         type: JwtTokenType,
@@ -76,6 +123,12 @@ class JwtService(
             null
         }
 
+    /**
+     * Creates a cookie that instructs the client to delete an existing cookie by setting its max age to 0.
+     *
+     * @param name The cookie name to delete.
+     * @return A [Cookie] configured for deletion.
+     */
     private fun createDeletionCookie(name: String): Cookie =
         Cookie(name, "").apply {
             maxAge = 0
