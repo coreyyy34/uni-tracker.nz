@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.security.oauth2.jwt.JwtException
 import org.springframework.stereotype.Service
+import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 
@@ -22,6 +23,7 @@ class JwtService(
     private val jwtEncoder: JwtEncoder,
     private val jwtDecoder: JwtDecoder,
     private val jwtProperties: JwtProperties,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     companion object {
         /**
@@ -82,7 +84,7 @@ class JwtService(
         type: JwtTokenType,
         lifetime: Duration,
     ): AuthToken {
-        val now = Instant.now()
+        val now = Instant.now(clock)
         val claims =
             JwtClaimsSet
                 .builder()

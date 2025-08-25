@@ -42,7 +42,9 @@ subprojects {
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
         "implementation"("io.github.oshai:kotlin-logging-jvm:7.0.13")
+        "testImplementation"("io.mockk:mockk:1.14.5")
         "testImplementation"("org.jetbrains.kotlin:kotlin-test-junit5")
+        "testImplementation"("io.kotest:kotest-assertions-core:6.0.0")
     }
 
     configure<KtlintExtension> {
