@@ -9,7 +9,6 @@ spring:
     password:
   exposed:
     generate-ddl: true
-    show-sql: true
   h2:
     console:
       enabled: true
@@ -38,6 +37,12 @@ spring:
             user-info-uri: https://graph.microsoft.com/oidc/userinfo
             jwk-set-uri: https://login.microsoftonline.com/common/discovery/v2.0/keys
             user-name-attribute: sub
+
+logging:
+  level:
+    nz.unitracker: DEBUG
+    Exposed: DEBUG
+
 
 app:
   auth:

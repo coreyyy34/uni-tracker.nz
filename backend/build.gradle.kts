@@ -105,6 +105,9 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
         implementation("com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion")
 
+        // cuid
+        implementation("io.github.thibaultmeyer:cuid:2.0.3")
+
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
     }

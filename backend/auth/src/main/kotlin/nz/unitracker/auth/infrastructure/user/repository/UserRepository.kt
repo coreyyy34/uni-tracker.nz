@@ -3,6 +3,7 @@ package nz.unitracker.auth.infrastructure.user.repository
 import nz.unitracker.auth.domain.user.model.User
 import nz.unitracker.auth.infrastructure.user.persistence.UserTable
 import nz.unitracker.auth.infrastructure.user.persistence.UserTable.email
+import nz.unitracker.auth.shared.IdGenerator
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -10,7 +11,9 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Repository
 
 @Repository
-class UserRepository {
+class UserRepository(
+    private val idGenerator: IdGenerator,
+) {
     fun findById(id: String): User? =
         transaction {
             UserTable
@@ -35,7 +38,7 @@ class UserRepository {
         transaction {
             val id =
                 UserTable.insert {
-                    it[UserTable.id] = "123456" // temp - todo use cuid
+                    it[UserTable.id] = idGenerator.generateId()
                     it[UserTable.email] = email
                     it[UserTable.firstName] = firstName
                     it[UserTable.lastName] = lastName
