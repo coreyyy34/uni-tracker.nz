@@ -1,11 +1,11 @@
-package nz.unitracker.auth.domain.jwt.service
+package nz.unitracker.auth.domain.auth.service
 
 import jakarta.servlet.http.Cookie
 import nz.unitracker.auth.config.jwt.JwtAccessUserDetails
 import nz.unitracker.auth.config.jwt.JwtRefreshUserDetails
 import nz.unitracker.auth.config.properties.JwtProperties
-import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
-import nz.unitracker.auth.domain.jwt.model.JwtTokenType
+import nz.unitracker.auth.domain.auth.model.JwtAuthToken
+import nz.unitracker.auth.domain.auth.model.JwtTokenType
 import nz.unitracker.auth.domain.user.model.UserId
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt

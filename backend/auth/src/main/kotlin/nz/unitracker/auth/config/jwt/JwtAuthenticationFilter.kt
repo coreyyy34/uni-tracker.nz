@@ -4,8 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import nz.unitracker.auth.domain.jwt.model.JwtTokenType
-import nz.unitracker.auth.domain.jwt.service.JwtService
+import nz.unitracker.auth.domain.auth.model.JwtTokenType
+import nz.unitracker.auth.domain.auth.service.JwtService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component

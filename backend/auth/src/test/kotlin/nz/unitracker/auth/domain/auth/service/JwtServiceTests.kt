@@ -9,9 +9,8 @@ import io.mockk.slot
 import nz.unitracker.auth.config.jwt.JwtAccessUserDetails
 import nz.unitracker.auth.config.jwt.JwtRefreshUserDetails
 import nz.unitracker.auth.config.properties.JwtProperties
-import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
-import nz.unitracker.auth.domain.jwt.model.JwtTokenType
-import nz.unitracker.auth.domain.jwt.service.JwtService
+import nz.unitracker.auth.domain.auth.model.JwtAuthToken
+import nz.unitracker.auth.domain.auth.model.JwtTokenType
 import nz.unitracker.auth.domain.user.model.UserId
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested

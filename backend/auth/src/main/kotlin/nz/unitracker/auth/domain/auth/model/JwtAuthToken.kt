@@ -1,4 +1,4 @@
-package nz.unitracker.auth.domain.jwt.model
+package nz.unitracker.auth.domain.auth.model
 
 import jakarta.servlet.http.Cookie
 

@@ -1,7 +1,6 @@
 package nz.unitracker.auth.domain.auth.service
 
-import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
-import nz.unitracker.auth.domain.jwt.service.JwtService
+import nz.unitracker.auth.domain.auth.model.JwtAuthToken
 import nz.unitracker.auth.domain.user.service.UserOAuthInfoExtractorService
 import nz.unitracker.auth.domain.user.service.UserService
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
