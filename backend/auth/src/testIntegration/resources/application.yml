@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  exposed:
+    generate-ddl: true
+    show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope: openid,profile,email
+            redirect-uri: "${app.auth.base-url}/login/oauth2/code/google"
+            authorization-grant-type: authorization_code
+          microsoft:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope: openid,profile,email
+            redirect-uri: "${app.auth.base-url}/login/oauth2/code/microsoft"
+            authorization-grant-type: authorization_code
+        provider:
+          microsoft:
+            authorization-uri: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+            token-uri: https://login.microsoftonline.com/common/oauth2/v2.0/token
+            user-info-uri: https://graph.microsoft.com/oidc/userinfo
+            jwk-set-uri: https://login.microsoftonline.com/common/discovery/v2.0/keys
+            user-name-attribute: sub
+
+app:
+  auth:
+    base-url: "https://auth.uni-tracker.nz/"
+  client:
+    redirect-url: "https://uni-tracker.nz/"
+jwt:
+  # RSA 1024-bit key pair - only used in tests
+  private_key: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMjyu2jWJ9fBANkEZ8frjEGEmlmNDpnmK6pAnKWMVa+YC6DbsjtyKOINgjAKRYVsfmJuAc7Evm8M3IYV9hlkC29SueUSufTLuh1Om2v/I4q4wcS9nMVZn1QndP34kEc/bhwJtVSX5ZxELWzaU0bghV21tnaCw1Ox8Z5KYYcj4W/rAgMBAAECgYBqF8WchxzIC41QBsRoR9NoMANx7khcNqqtG6nYuavvpl3VUsjaG9674pfuly23UN21SBFKQpOse+TeIjApnalu7/5WidgrgfSk7h23nXdfE5h5akoJn3oNX4cu9XvhDyV5cl/vJFUGVF4+EN7FhLK+oaGFc1UzO3kCS0puvXQV8QJBAPJoyb0L4mBDWTrUimw1JD50b+8NYqzyOtlt7O6+YMJiLlC1WSD+5UYWTeLVr1AZ/aBEu2hFmVCiNKoqB/0R4zkCQQDUNt4HPencDDn7zO9qWZDA9lpXwcc18B3jPTLf7/5z0u68xTnXIGeJJpaaDfOEqyB7fCtz5/nAdlLfco9J8rhDAkEA3q/u7BE30/DqzsWjqAYllo5GqdelF3WrJET8jNItd0TUgWYnS819eCZTRJfC5pYJzap2czLExjNMqCnWjuBY2QJAVK0H7s/PjpP6VvSw2zidv8EMz1Nsz6Ld6hwzPpOebkzOIdh4edReO6WAFjxW3KsDrQIgvIDlcNxFuQ8XCaSlzQJAWUVOgFKF31UCT3iyKdc9t7Ig12+8g+eTb63hOngzTqIVzKeD1Y0rgxRIFfZBeiH5SJvOqBijwvE1BbBj+S/EkQ=="
+  public_key: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDI8rto1ifXwQDZBGfH64xBhJpZjQ6Z5iuqQJyljFWvmAug27I7cijiDYIwCkWFbH5ibgHOxL5vDNyGFfYZZAtvUrnlErn0y7odTptr/yOKuMHEvZzFWZ9UJ3T9+JBHP24cCbVUl+WcRC1s2lNG4IVdtbZ2gsNTsfGeSmGHI+Fv6wIDAQAB"
+  access_lifetime: 15m
+  refresh_lifetime: 7d

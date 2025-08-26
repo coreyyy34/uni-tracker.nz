@@ -15,6 +15,9 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "13.0.0" apply false
 }
 
+val exposedVersion = "1.0.0-beta-5"
+val jacksonVersion = "2.19.2"
+
 subprojects {
     group = "nz.unitracker"
     repositories { mavenCentral() }
@@ -38,7 +41,10 @@ subprojects {
     // common dependencies for all subprojects
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
+        "implementation"("io.github.oshai:kotlin-logging-jvm:7.0.13")
+        "testImplementation"("io.mockk:mockk:1.14.5")
         "testImplementation"("org.jetbrains.kotlin:kotlin-test-junit5")
+        "testImplementation"("io.kotest:kotest-assertions-core:6.0.0")
     }
 
     configure<KtlintExtension> {
@@ -89,20 +95,30 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
         "implementation"("org.springframework.boot:spring-boot-starter")
         "implementation"("org.springframework.boot:spring-boot-starter-web")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
-        "implementation"("org.jetbrains.kotlin:kotlin-reflect")
+
+        // database
+        implementation("org.jetbrains.exposed:exposed-spring-boot-starter:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+        implementation("org.jetbrains.exposed:spring-transaction:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+        implementation("com.h2database:h2")
+
+        // jackson
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+        implementation("com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion")
+
+        // cuid
+        implementation("io.github.thibaultmeyer:cuid:2.0.3")
+
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
     }
 
     sourceSets {
         val main by getting
-        val test by getting
 
         val testIntegration by creating {
-            java.srcDir("src/testIntegration/kotlin")
-            resources.srcDir("src/testIntegration/resources")
-
-            compileClasspath += main.output + test.output
+            compileClasspath += main.output
             runtimeClasspath += output + compileClasspath
         }
     }
@@ -133,7 +149,7 @@ configure(subprojects.filter { it.name in listOf("api", "auth") }) {
         executionData.setFrom(
             fileTree(layout.buildDirectory.dir("jacoco")) {
                 include("testIntegration.exec")
-            }
+            },
         )
 
         sourceDirectories.setFrom(sourceSets["main"].allSource.srcDirs)

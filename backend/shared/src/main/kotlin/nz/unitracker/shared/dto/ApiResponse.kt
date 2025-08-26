@@ -24,5 +24,12 @@ data class ApiResponse<T>(
                 timestamp = Instant.now(),
                 data = data,
             )
+
+        /**
+         * Creates a new [ApiResponse] with the [timestamp] automatically set to now and with a success message.
+         *
+         * @return A new [ApiResponse] instance.
+         */
+        fun success() = now(mapOf("success" to true))
     }
 }
