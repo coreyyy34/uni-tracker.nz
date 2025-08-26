@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie
 import nz.unitracker.auth.config.properties.JwtProperties
 import nz.unitracker.auth.domain.auth.model.AuthToken
 import nz.unitracker.auth.domain.auth.model.JwtTokenType
+import nz.unitracker.auth.domain.user.model.UserId
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -35,16 +36,18 @@ class JwtService(
     /**
      * Generates an access token and its associated cookie.
      *
+     * @param userId the [UserId] of the user for whom the token is generated for.
      * @return [AuthToken] containing the JWT string and its cookie.
      */
-    fun generateAccessToken(): AuthToken = generateToken(JwtTokenType.ACCESS, jwtProperties.accessLifetime)
+    fun generateAccessToken(userId: UserId): AuthToken = generateToken(JwtTokenType.ACCESS, jwtProperties.accessLifetime, userId)
 
     /**
      * Generates a refresh token and its associated cookie.
      *
+     * @param userId the [UserId] of the user for whom the token is generated for.
      * @return [AuthToken] containing the JWT string and its cookie.
      */
-    fun generateRefreshToken(): AuthToken = generateToken(JwtTokenType.REFRESH, jwtProperties.refreshLifetime)
+    fun generateRefreshToken(userId: UserId): AuthToken = generateToken(JwtTokenType.REFRESH, jwtProperties.refreshLifetime, userId)
 
     /**
      * Validates an access token.
@@ -78,18 +81,20 @@ class JwtService(
      *
      * @param type The token type ([JwtTokenType.ACCESS] or [JwtTokenType.REFRESH]).
      * @param lifetime The duration before the token expires.
+     * @param userId the [UserId] of the user for whom the token is generated for.
      * @return [AuthToken] containing the JWT string and its cookie.
      */
     private fun generateToken(
         type: JwtTokenType,
         lifetime: Duration,
+        userId: UserId,
     ): AuthToken {
         val now = Instant.now(clock)
         val claims =
             JwtClaimsSet
                 .builder()
                 .issuer("http://localhost:9000")
-                .subject("username")
+                .subject(userId.toString())
                 .issuedAt(now)
                 .expiresAt(now.plus(lifetime))
                 .claim(TOKEN_TYPE_CLAIM_NAME, type.tokenName)

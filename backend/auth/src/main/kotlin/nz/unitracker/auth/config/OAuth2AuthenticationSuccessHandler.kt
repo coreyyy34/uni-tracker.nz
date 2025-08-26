@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import nz.unitracker.auth.config.properties.AppProperties
 import nz.unitracker.auth.domain.auth.service.AuthService
-import nz.unitracker.auth.domain.user.service.UserOAuthInfoExtractorService
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.oauth2.core.user.OAuth2User
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component
 class OAuth2AuthenticationSuccessHandler(
     private val appProperties: AppProperties,
     private val authService: AuthService,
-    private val userOauthInfoExtractorService: UserOAuthInfoExtractorService,
 ) : AuthenticationSuccessHandler {
     private val logger = KotlinLogging.logger { }
 
@@ -26,31 +24,21 @@ class OAuth2AuthenticationSuccessHandler(
         authentication: Authentication,
     ) {
         val oauthUser = authentication.principal as? OAuth2User
-        if (oauthUser == null) {
-            logger.warn { "Authentication principal is not an OAuth2User" }
+        val oauthToken = authentication as? OAuth2AuthenticationToken
+
+        if (oauthUser == null || oauthToken == null) {
+            logger.warn { "Invalid authentication object: ${authentication::class.simpleName}" }
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid authentication")
             return
         }
 
-        val providerId =
-            (authentication as? OAuth2AuthenticationToken)
-                ?.authorizedClientRegistrationId
-                ?: run {
-                    logger.warn { "No provider ID found in authentication token" }
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown provider")
-                    return
-                }
-
         try {
-            val userInfo = userOauthInfoExtractorService.extractUserInfo(oauthUser, providerId)
-            logger.debug { "Extracted UserInfo: $userInfo" }
-
-            val tokens = authService.handleOAuthLogin(userInfo)
+            val tokens = authService.handleOAuthLogin(oauthUser, oauthToken)
             tokens.forEach { token -> response.addCookie(token.cookie) }
 
             response.sendRedirect(appProperties.client.redirectUrl)
         } catch (e: Exception) {
-            logger.error(e) { "Failed to process OAuth2 user for provider $providerId" }
+            logger.error(e) { "Failed to process OAuth2 login" }
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Failed to extract user info")
         }
     }
