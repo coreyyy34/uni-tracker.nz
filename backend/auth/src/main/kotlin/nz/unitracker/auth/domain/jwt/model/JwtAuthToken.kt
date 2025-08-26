@@ -1,4 +1,4 @@
-package nz.unitracker.auth.domain.auth.model
+package nz.unitracker.auth.domain.jwt.model
 
 import jakarta.servlet.http.Cookie
 
@@ -9,7 +9,7 @@ import jakarta.servlet.http.Cookie
  * @property value The raw JWT string.
  * @property cookie The HTTP cookie containing the token.
  */
-data class AuthToken(
+data class JwtAuthToken(
     val value: String,
     val cookie: Cookie,
 )

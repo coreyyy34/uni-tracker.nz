@@ -1,4 +1,4 @@
-package nz.unitracker.auth.domain.auth.model
+package nz.unitracker.auth.domain.jwt.model
 
 /**
  * Enum representing the supported JWT types used in authentication.

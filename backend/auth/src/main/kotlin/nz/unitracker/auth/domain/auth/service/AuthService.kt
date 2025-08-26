@@ -1,6 +1,7 @@
 package nz.unitracker.auth.domain.auth.service
 
-import nz.unitracker.auth.domain.auth.model.AuthToken
+import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
+import nz.unitracker.auth.domain.jwt.service.JwtService
 import nz.unitracker.auth.domain.user.service.UserOAuthInfoExtractorService
 import nz.unitracker.auth.domain.user.service.UserService
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
@@ -18,7 +19,7 @@ class AuthService(
     fun handleOAuthLogin(
         oauthUser: OAuth2User,
         authentication: OAuth2AuthenticationToken,
-    ): List<AuthToken> {
+    ): List<JwtAuthToken> {
         val providerId = authentication.authorizedClientRegistrationId
         val userInfo = userOAuthInfoExtractorService.extractUserInfo(oauthUser, providerId)
         val user =
@@ -27,7 +28,7 @@ class AuthService(
 
         return listOf(
             jwtService.generateRefreshToken(user.id),
-            jwtService.generateAccessToken(user.id),
+            jwtService.generateAccessToken(user.id, user.email),
         )
     }
 }

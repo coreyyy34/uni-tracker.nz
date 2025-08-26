@@ -1,11 +1,14 @@
-package nz.unitracker.auth.domain.auth.service
+package nz.unitracker.auth.domain.jwt.service
 
 import jakarta.servlet.http.Cookie
+import nz.unitracker.auth.config.jwt.JwtAccessUserDetails
+import nz.unitracker.auth.config.jwt.JwtRefreshUserDetails
 import nz.unitracker.auth.config.properties.JwtProperties
-import nz.unitracker.auth.domain.auth.model.AuthToken
-import nz.unitracker.auth.domain.auth.model.JwtTokenType
-import nz.unitracker.auth.domain.auth.model.ParsedJwt
+import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
+import nz.unitracker.auth.domain.jwt.model.JwtTokenType
 import nz.unitracker.auth.domain.user.model.UserId
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
@@ -37,33 +40,56 @@ class JwtService(
      * Generates an access token and its associated cookie.
      *
      * @param userId the [UserId] of the user for whom the token is generated for.
-     * @return [AuthToken] containing the JWT string and its cookie.
+     * @param email The email of the user to include in the token claims.
+     * @return [JwtAuthToken] containing the JWT string and its cookie.
      */
-    fun generateAccessToken(userId: UserId): AuthToken = generateToken(JwtTokenType.ACCESS, jwtProperties.accessLifetime, userId)
+    fun generateAccessToken(
+        userId: UserId,
+        email: String,
+    ): JwtAuthToken =
+        generateToken(
+            JwtTokenType.ACCESS,
+            jwtProperties.accessLifetime,
+            userId,
+            mapOf("email" to email),
+        )
 
     /**
      * Generates a refresh token and its associated cookie.
      *
      * @param userId the [UserId] of the user for whom the token is generated for.
-     * @return [AuthToken] containing the JWT string and its cookie.
+     * @return [JwtAuthToken] containing the JWT string and its cookie.
      */
-    fun generateRefreshToken(userId: UserId): AuthToken = generateToken(JwtTokenType.REFRESH, jwtProperties.refreshLifetime, userId)
+    fun generateRefreshToken(userId: UserId): JwtAuthToken = generateToken(JwtTokenType.REFRESH, jwtProperties.refreshLifetime, userId)
 
     /**
-     * Validates an access token.
+     * Validates an access token and maps it to [JwtAccessUserDetails].
      *
      * @param token The raw JWT string to validate.
-     * @return The decoded [ParsedJwt] if valid, otherwise `null`.
+     * @return [JwtAccessUserDetails] if valid, otherwise `null`.
      */
-    fun validateAccessToken(token: String): ParsedJwt? = validateToken(token, JwtTokenType.ACCESS)
+    fun validateAccessToken(token: String): JwtAccessUserDetails? =
+        validateToken(token, JwtTokenType.ACCESS) { jwt ->
+            JwtAccessUserDetails(
+                userId = UserId(jwt.subject),
+                email = jwt.claims["email"] as? String ?: "",
+                authorities =
+                    (jwt.claims["roles"] as? List<*>)?.map {
+                        SimpleGrantedAuthority(it.toString())
+                    } ?: emptyList(),
+            )
+        }
 
     /**
-     * Validates a refresh token.
+     * Validates a refresh token and maps it to [JwtRefreshUserDetails]
      *
      * @param token The raw JWT string to validate.
-     * @return The decoded [ParsedJwt] if valid, otherwise `null`.
+     * @return [JwtRefreshUserDetails] if valid, otherwise `null`.
      */
-    fun validateRefreshToken(token: String): ParsedJwt? = validateToken(token, JwtTokenType.REFRESH)
+    fun validateRefreshToken(token: String): JwtRefreshUserDetails? =
+        validateToken(token, JwtTokenType.REFRESH) { jwt ->
+            JwtRefreshUserDetails(userId = UserId(jwt.subject))
+        }
 
     /**
      * Creates cookies that instruct the client to delete existing access and refresh token cookies.
@@ -82,15 +108,17 @@ class JwtService(
      * @param type The token type ([JwtTokenType.ACCESS] or [JwtTokenType.REFRESH]).
      * @param lifetime The duration before the token expires.
      * @param userId the [UserId] of the user for whom the token is generated for.
-     * @return [AuthToken] containing the JWT string and its cookie.
+     * @param extraClaims Optional additional claims to include in the token.
+     * @return [JwtAuthToken] containing the JWT string and its cookie.
      */
     private fun generateToken(
         type: JwtTokenType,
         lifetime: Duration,
         userId: UserId,
-    ): AuthToken {
+        extraClaims: Map<String, Any> = emptyMap(),
+    ): JwtAuthToken {
         val now = Instant.now(clock)
-        val claims =
+        val claimsBuilder =
             JwtClaimsSet
                 .builder()
                 .issuer("http://localhost:9000")
@@ -98,10 +126,10 @@ class JwtService(
                 .issuedAt(now)
                 .expiresAt(now.plus(lifetime))
                 .claim(TOKEN_TYPE_CLAIM_NAME, type.tokenName)
-                .build()
+        extraClaims.forEach { (key, value) -> claimsBuilder.claim(key, value) }
 
+        val claims = claimsBuilder.build()
         val token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
-
         val cookie =
             Cookie(type.cookieName, token).apply {
                 isHttpOnly = true
@@ -109,24 +137,26 @@ class JwtService(
                 path = "/"
                 maxAge = lifetime.toSeconds().toInt()
             }
-        return AuthToken(token, cookie)
+        return JwtAuthToken(token, cookie)
     }
 
     /**
-     * Validates a JWT against its expected type.
+     * Validates a JWT against its expected type and maps it using a provided function.
      *
      * @param token The raw JWT string.
-     * @param type The expected token type.
-     * @return The decoded [ParsedJwt] if valid and type matches, otherwise `null`.
+     * @param type The expected token type ([JwtTokenType.ACCESS] or [JwtTokenType.REFRESH]).
+     * @param mapper A function that maps a decoded [Jwt] to a user detail object of type [T].
+     * @return The mapped user detail object if valid, otherwise `null`.
      */
-    private fun validateToken(
+    private fun <T> validateToken(
         token: String,
         type: JwtTokenType,
-    ): ParsedJwt? =
+        mapper: (Jwt) -> T?,
+    ): T? =
         try {
             val jwt = jwtDecoder.decode(token)
             if (jwt.claims[TOKEN_TYPE_CLAIM_NAME] == type.tokenName) {
-                ParsedJwt(userId = UserId(jwt.subject))
+                mapper(jwt)
             } else {
                 null
             }

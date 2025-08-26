@@ -1,5 +1,7 @@
 package nz.unitracker.auth.config
 
+import nz.unitracker.auth.config.jwt.JwtAuthenticationFilter
+import nz.unitracker.auth.config.oauth.OAuth2AuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer.withDefaults

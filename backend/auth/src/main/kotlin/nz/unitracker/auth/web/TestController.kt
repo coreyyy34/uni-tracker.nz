@@ -1,6 +1,6 @@
 package nz.unitracker.auth.web
 
-import nz.unitracker.auth.config.JwtUserDetails
+import nz.unitracker.auth.config.jwt.JwtAccessUserDetails
 import nz.unitracker.nz.unitracker.shared.dto.ApiEnvelope
 import nz.unitracker.nz.unitracker.shared.dto.ApiResponse
 import org.springframework.security.access.prepost.PreAuthorize
@@ -13,6 +13,6 @@ class TestController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/test")
     fun test(
-        @AuthenticationPrincipal userDetails: JwtUserDetails,
+        @AuthenticationPrincipal userDetails: JwtAccessUserDetails,
     ): ApiEnvelope = ApiResponse.now(userDetails)
 }

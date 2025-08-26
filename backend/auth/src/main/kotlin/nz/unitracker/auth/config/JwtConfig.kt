@@ -68,7 +68,7 @@ class JwtConfig(
      * @return the [RSAPrivateKey] instance for signing JWTs.
      */
     private fun loadPrivateKey(): RSAPrivateKey {
-        val bytes = Base64.decode(jwtProperties.privateKey)
+        val bytes = Base64.Default.decode(jwtProperties.privateKey)
         val spec = PKCS8EncodedKeySpec(bytes)
         val keyFactory = KeyFactory.getInstance("RSA")
         return keyFactory.generatePrivate(spec) as RSAPrivateKey
@@ -83,7 +83,7 @@ class JwtConfig(
      * @return the [RSAPublicKey] instance for verifying JWTs.
      */
     private fun loadPublicKey(): RSAPublicKey {
-        val bytes = Base64.decode(jwtProperties.publicKey)
+        val bytes = Base64.Default.decode(jwtProperties.publicKey)
         val spec = X509EncodedKeySpec(bytes)
         val keyFactory = KeyFactory.getInstance("RSA")
         return keyFactory.generatePublic(spec) as RSAPublicKey

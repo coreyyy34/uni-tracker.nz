@@ -7,8 +7,9 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import nz.unitracker.auth.config.properties.JwtProperties
-import nz.unitracker.auth.domain.auth.model.AuthToken
-import nz.unitracker.auth.domain.auth.model.JwtTokenType
+import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
+import nz.unitracker.auth.domain.jwt.model.JwtTokenType
+import nz.unitracker.auth.domain.jwt.service.JwtService
 import nz.unitracker.auth.domain.user.model.UserId
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -170,7 +171,7 @@ class JwtServiceTests {
         expectedType: JwtTokenType,
         userId: UserId,
         lifetime: Duration,
-        tokenGenerator: () -> AuthToken,
+        tokenGenerator: () -> JwtAuthToken,
         additionalClaimsVerification: (JwtClaimsSet) -> Unit = {},
     ) {
         val expectedTokenValue = "test-token"

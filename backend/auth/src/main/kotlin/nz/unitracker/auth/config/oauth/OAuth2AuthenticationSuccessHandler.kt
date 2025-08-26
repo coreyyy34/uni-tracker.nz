@@ -1,4 +1,4 @@
-package nz.unitracker.auth.config
+package nz.unitracker.auth.config.oauth
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest

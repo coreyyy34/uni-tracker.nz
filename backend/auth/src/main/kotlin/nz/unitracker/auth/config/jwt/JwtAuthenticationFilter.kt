@@ -1,11 +1,11 @@
-package nz.unitracker.auth.config
+package nz.unitracker.auth.config.jwt
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import nz.unitracker.auth.domain.auth.model.JwtTokenType
-import nz.unitracker.auth.domain.auth.service.JwtService
+import nz.unitracker.auth.domain.jwt.model.JwtTokenType
+import nz.unitracker.auth.domain.jwt.service.JwtService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -30,13 +30,11 @@ class JwtAuthenticationFilter(
         if (accessToken == null) {
             utLogger.debug { "No access token cookie found on request to ${request.requestURI}" }
         } else {
-            val jwt = jwtService.validateAccessToken(accessToken)
-            if (jwt != null) {
-                val userId = jwt.userId
-                val principal = JwtUserDetails(jwt.userId)
-                val auth = UsernamePasswordAuthenticationToken(principal, null, principal.authorities)
+            val userDetails = jwtService.validateAccessToken(accessToken)
+            if (userDetails != null) {
+                val auth = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                 SecurityContextHolder.getContext().authentication = auth
-                utLogger.debug { "JWT validated. User ${userId.id} authenticated." }
+                utLogger.debug { "JWT validated. User ${userDetails.userId} authenticated." }
             } else {
                 utLogger.debug { "Invalid or expired JWT for request to ${request.requestURI}" }
             }
