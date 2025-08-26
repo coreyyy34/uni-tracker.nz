@@ -9,6 +9,7 @@ import io.mockk.slot
 import nz.unitracker.auth.config.properties.JwtProperties
 import nz.unitracker.auth.domain.auth.model.AuthToken
 import nz.unitracker.auth.domain.auth.model.JwtTokenType
+import nz.unitracker.auth.domain.user.model.UserId
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,13 +37,15 @@ class JwtServiceTests {
     inner class JwtServiceAccessTokenTests {
         @Test
         fun `should generate access token with correct properties`() {
+            val userId = UserId("123456")
             val lifetime = Duration.ofMinutes(15)
             every { jwtProperties.accessLifetime } returns lifetime
 
             verifyTokenGeneration(
                 JwtTokenType.ACCESS,
+                userId,
                 lifetime,
-                { jwtService.generateAccessToken() },
+                { jwtService.generateAccessToken(userId) },
             ) { claims ->
                 claims.claims[JwtService.TOKEN_TYPE_CLAIM_NAME] shouldBe JwtTokenType.ACCESS.tokenName
             }
@@ -93,13 +96,15 @@ class JwtServiceTests {
     inner class JwtServiceRefreshTokenTests {
         @Test
         fun `should generate refresh token with correct properties`() {
+            val userId = UserId("123456")
             val lifetime = Duration.ofDays(7)
             every { jwtProperties.refreshLifetime } returns lifetime
 
             verifyTokenGeneration(
                 JwtTokenType.REFRESH,
+                userId,
                 lifetime,
-                { jwtService.generateRefreshToken() },
+                { jwtService.generateRefreshToken(userId) },
             ) { claims ->
                 claims.claims[JwtService.TOKEN_TYPE_CLAIM_NAME] shouldBe JwtTokenType.REFRESH.tokenName
             }
@@ -163,6 +168,7 @@ class JwtServiceTests {
 
     private fun verifyTokenGeneration(
         expectedType: JwtTokenType,
+        userId: UserId,
         lifetime: Duration,
         tokenGenerator: () -> AuthToken,
         additionalClaimsVerification: (JwtClaimsSet) -> Unit = {},
@@ -187,7 +193,7 @@ class JwtServiceTests {
 
         val claims = capturedParams.captured.claims
         claims.issuer.toString() shouldBe "http://localhost:9000"
-        claims.subject shouldBe "username"
+        claims.subject shouldBe userId.id
         claims.issuedAt shouldBe fixedTime
         claims.expiresAt shouldBe expectedExpiry
 
