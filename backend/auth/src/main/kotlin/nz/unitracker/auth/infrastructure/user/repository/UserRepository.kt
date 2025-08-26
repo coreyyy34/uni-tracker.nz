@@ -1,6 +1,7 @@
 package nz.unitracker.auth.infrastructure.user.repository
 
 import nz.unitracker.auth.domain.user.model.User
+import nz.unitracker.auth.domain.user.model.UserId
 import nz.unitracker.auth.infrastructure.user.persistence.UserTable
 import nz.unitracker.auth.shared.IdGenerator
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -12,10 +13,10 @@ import org.springframework.stereotype.Repository
 class UserRepository(
     private val idGenerator: IdGenerator,
 ) {
-    fun findById(id: String): User? =
+    fun findById(id: UserId): User? =
         UserTable
             .selectAll()
-            .where { UserTable.id eq id }
+            .where { UserTable.id eq id.toString() }
             .singleOrNull()
             ?.let { toUser(it) }
 
@@ -43,7 +44,7 @@ class UserRepository(
 
     fun toUser(row: ResultRow): User =
         User(
-            id = row[UserTable.id],
+            id = UserId(row[UserTable.id]),
             email = row[UserTable.email],
             firstName = row[UserTable.firstName],
             lastName = row[UserTable.lastName],
