@@ -4,8 +4,8 @@ import jakarta.servlet.http.Cookie
 import nz.unitracker.auth.config.properties.JwtProperties
 import nz.unitracker.auth.domain.auth.model.AuthToken
 import nz.unitracker.auth.domain.auth.model.JwtTokenType
+import nz.unitracker.auth.domain.auth.model.ParsedJwt
 import nz.unitracker.auth.domain.user.model.UserId
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
@@ -53,17 +53,17 @@ class JwtService(
      * Validates an access token.
      *
      * @param token The raw JWT string to validate.
-     * @return The decoded [Jwt] if valid, otherwise `null`.
+     * @return The decoded [ParsedJwt] if valid, otherwise `null`.
      */
-    fun validateAccessToken(token: String): Jwt? = validateToken(token, JwtTokenType.ACCESS)
+    fun validateAccessToken(token: String): ParsedJwt? = validateToken(token, JwtTokenType.ACCESS)
 
     /**
      * Validates a refresh token.
      *
      * @param token The raw JWT string to validate.
-     * @return The decoded [Jwt] if valid, otherwise `null`.
+     * @return The decoded [ParsedJwt] if valid, otherwise `null`.
      */
-    fun validateRefreshToken(token: String): Jwt? = validateToken(token, JwtTokenType.REFRESH)
+    fun validateRefreshToken(token: String): ParsedJwt? = validateToken(token, JwtTokenType.REFRESH)
 
     /**
      * Creates cookies that instruct the client to delete existing access and refresh token cookies.
@@ -117,15 +117,19 @@ class JwtService(
      *
      * @param token The raw JWT string.
      * @param type The expected token type.
-     * @return The decoded [Jwt] if valid and type matches, otherwise `null`.
+     * @return The decoded [ParsedJwt] if valid and type matches, otherwise `null`.
      */
     private fun validateToken(
         token: String,
         type: JwtTokenType,
-    ): Jwt? =
+    ): ParsedJwt? =
         try {
             val jwt = jwtDecoder.decode(token)
-            if (jwt.claims[TOKEN_TYPE_CLAIM_NAME] == type.tokenName) jwt else null
+            if (jwt.claims[TOKEN_TYPE_CLAIM_NAME] == type.tokenName) {
+                ParsedJwt(userId = UserId(jwt.subject))
+            } else {
+                null
+            }
         } catch (e: JwtException) {
             null
         }
