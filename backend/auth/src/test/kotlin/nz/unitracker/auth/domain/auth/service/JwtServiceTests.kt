@@ -6,6 +6,8 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
+import nz.unitracker.auth.config.jwt.JwtAccessUserDetails
+import nz.unitracker.auth.config.jwt.JwtRefreshUserDetails
 import nz.unitracker.auth.config.properties.JwtProperties
 import nz.unitracker.auth.domain.jwt.model.JwtAuthToken
 import nz.unitracker.auth.domain.jwt.model.JwtTokenType
@@ -39,6 +41,7 @@ class JwtServiceTests {
         @Test
         fun `should generate access token with correct properties`() {
             val userId = UserId("123456")
+            val email = "test@test.com"
             val lifetime = Duration.ofMinutes(15)
             every { jwtProperties.accessLifetime } returns lifetime
 
@@ -46,7 +49,7 @@ class JwtServiceTests {
                 JwtTokenType.ACCESS,
                 userId,
                 lifetime,
-                { jwtService.generateAccessToken(userId) },
+                { jwtService.generateAccessToken(userId, email) },
             ) { claims ->
                 claims.claims[JwtService.TOKEN_TYPE_CLAIM_NAME] shouldBe JwtTokenType.ACCESS.tokenName
             }
@@ -54,17 +57,27 @@ class JwtServiceTests {
 
         @Test
         fun `should validate access token when type matches`() {
+            val userId = UserId("123456")
+            val email = "test@test.com"
             val tokenValue = "valid-token"
             val jwt =
                 Jwt
                     .withTokenValue(tokenValue)
+                    .subject(userId.toString())
                     .header("alg", "HS256")
                     .claim(JwtService.TOKEN_TYPE_CLAIM_NAME, JwtTokenType.ACCESS.tokenName)
+                    .claim("email", email)
                     .build()
+            val expectedUserDetails =
+                JwtAccessUserDetails(
+                    userId = userId,
+                    email = email,
+                    authorities = listOf(),
+                )
             every { jwtDecoder.decode(tokenValue) } returns jwt
 
             val result = jwtService.validateAccessToken(tokenValue)
-            result shouldBe jwt
+            result shouldBe expectedUserDetails
         }
 
         @Test
@@ -113,17 +126,22 @@ class JwtServiceTests {
 
         @Test
         fun `should validate refresh token when type matches`() {
+            val userId = UserId("123456")
             val tokenValue = "valid-token"
             val jwt =
                 Jwt
                     .withTokenValue(tokenValue)
+                    .subject("123456")
                     .header("alg", "HS256")
                     .claim(JwtService.TOKEN_TYPE_CLAIM_NAME, JwtTokenType.REFRESH.tokenName)
                     .build()
             every { jwtDecoder.decode(tokenValue) } returns jwt
 
+            val expectedUserDetails =
+                JwtRefreshUserDetails(userId = userId)
+
             val result = jwtService.validateRefreshToken(tokenValue)
-            result shouldBe jwt
+            result shouldBe expectedUserDetails
         }
 
         @Test
