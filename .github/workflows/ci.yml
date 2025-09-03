@@ -55,7 +55,7 @@ jobs:
   unit-tests:
     name: "${{ matrix.module }} - Unit Tests"
     runs-on: ubuntu-latest
-    needs: [ setup, lint ]
+    needs: [ setup ]
     strategy:
       fail-fast: false
       matrix:
@@ -78,7 +78,7 @@ jobs:
   integration-tests:
     name: "${{ matrix.module }} - Integration Tests"
     runs-on: ubuntu-latest
-    needs: [ setup, lint ]
+    needs: [ setup ]
     strategy:
       fail-fast: false
       matrix:
@@ -101,7 +101,7 @@ jobs:
   report-tests:
     name: Combined Tests
     runs-on: ubuntu-latest
-    needs: [ unit-tests, integration-tests ]
+    needs: [ lint, unit-tests, integration-tests ]
     if: always()
     steps:
       - name: Download all test results
@@ -119,7 +119,7 @@ jobs:
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: [ unit-tests, integration-tests ]
+    needs: [ lint, unit-tests, integration-tests ]
     # only run if branch is main or dev
     if: ${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
     strategy:
