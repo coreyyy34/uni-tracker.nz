@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uni-tracker
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: uni-tracker
+        component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: placeholder-image-frontend
+          ports:
+            - containerPort: 3000
