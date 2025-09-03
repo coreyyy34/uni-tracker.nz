@@ -12,8 +12,6 @@ permissions:
 
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
-  DOCKER_TAG: ${{ github.ref_name }}-${{ github.sha }}
-  DOCKER_TAG_LATEST: ${{ github.ref_name }}-latest
 
 jobs:
   setup:
@@ -149,8 +147,8 @@ jobs:
           file: ${{ matrix.service.dockerfile }}
           push: true
           tags: |
-            ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-            ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG_LATEST }}
+            ${{ env.DOCKER_IMAGE_BASE }}-${{ matrix.service.name }}:${{ github.ref_name }}-${{ github.sha }}
+            ${{ env.DOCKER_IMAGE_BASE }}-${{ matrix.service.name }}:${{ github.ref_name }}-latest
           cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
           outputs: type=registry
