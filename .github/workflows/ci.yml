@@ -147,8 +147,8 @@ jobs:
           file: ${{ matrix.service.dockerfile }}
           push: true
           tags: |
-            ${{ env.DOCKER_IMAGE_BASE }}-${{ matrix.service.name }}:${{ github.ref_name }}-${{ github.sha }}
-            ${{ env.DOCKER_IMAGE_BASE }}-${{ matrix.service.name }}:${{ github.ref_name }}-latest
+            ${{ env.DOCKER_IMAGE  }}-${{ matrix.service.name }}:${{ github.ref_name }}-${{ github.sha }}
+            ${{ env.DOCKER_IMAGE  }}-${{ matrix.service.name }}:${{ github.ref_name }}-latest
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}-${{ matrix.service.name }}:buildcache,mode=max
           cache-from: type=registry,ref=ghcr.io/${{ github.repository }}-${{ matrix.service.name }}:buildcache
           outputs: type=registry
