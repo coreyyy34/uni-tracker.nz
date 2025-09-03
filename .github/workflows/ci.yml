@@ -12,8 +12,8 @@ permissions:
 
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
-  DOCKER_TAG: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}-${{ github.sha }}
-  DOCKER_TAG_LATEST: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}-latest
+  DOCKER_TAG: ${{ github.ref_name }}-${{ github.sha }}
+  DOCKER_TAG_LATEST: ${{ github.ref_name }}-latest
 
 jobs:
   setup:
@@ -122,6 +122,12 @@ jobs:
     needs: [ unit-tests, integration-tests ]
     # only run if branch is main or dev
     if: ${{ github.ref_name == 'main' || github.ref_name == 'dev' }}
+    strategy:
+      matrix:
+        service:
+          - name: frontend
+            context: frontend
+            dockerfile: frontend/Dockerfile
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -139,8 +145,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: frontend
-          file: frontend/Dockerfile
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.dockerfile }}
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
