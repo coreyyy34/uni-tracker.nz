@@ -1,35 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+    name: frontend
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: uni-tracker
-      component: frontend
-  template:
-    metadata:
-      labels:
-        app: uni-tracker
-        component: frontend
-    spec:
-      containers:
-        - name: frontend
-          image: placeholder-image-frontend
-          ports:
-            - containerPort: 3000
+    replicas: 1
+    selector:
+        matchLabels:
+            app: uni-tracker
+            component: frontend
+    template:
+        metadata:
+            labels:
+                app: uni-tracker
+                component: frontend
+        spec:
+            containers:
+                - name: frontend
+                  image: placeholder-image-frontend
+                  imagePullPolicy: Always
+                  ports:
+                      - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+    name: frontend-service
 spec:
-  selector:
-    app: uni-tracker
-    component: frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: ClusterIP
+    selector:
+        app: uni-tracker
+        component: frontend
+    ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 3000
+    type: ClusterIP
