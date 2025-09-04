@@ -1,11 +1,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../base
+    - ../../base
 
 namespace: uni-tracker-stg
 
 images:
-  - name: placeholder-image-frontend
-    newName: ghcr.io/coreyyy34/uni-tracker.nz-frontend
-    newTag: dev-latest
+    - name: placeholder-image-frontend
+      newName: ghcr.io/coreyyy34/uni-tracker.nz-frontend
+      newTag: dev-latest
